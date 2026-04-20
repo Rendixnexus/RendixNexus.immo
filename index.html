@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RendixNexus</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+    <div class="logo-container">
+        <img src="rendix.jpg" alt="Logo" class="logo">
+        <span class="logo-name">ImmoRendix</span>
+    </div>
+    <nav>
+        <a href="index.html">Startseite</a>
+        <a href="packages.html">Pakete</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Registrieren</a>
+        <a href="#" id="btn-inserat" style="display:none;">Inserat erstellen</a>
+    </nav>
+</header>
+
+<!-- ================= HERO / INTRO ================= -->
+<section class="video-section">
+    <video autoplay muted loop class="start-video">
+        <source src="People_Family.mp4" type="video/mp4">
+        Dein Browser unterstützt kein Video.
+    </video>
+</section>
+
+<section class="intro-text">
+    <h1>Willkommen bei ImmoRendix</h1>
+    <p>Finde deine Immobilie in der Schweiz, Deutschland oder Österreich oder inseriere selbst.</p>
+    <a href="#" id="btn-inserat-hero" class="btn" style="display:none;">Inserat erstellen</a>
+</section>
+
+
+
+   <div class="foreign-listing-action">
+    <p>Auslandsimmobilie inserieren?</p>
+    <a href="register.html" class="btn">Auslandsimmo</a>
+</div>
+</section>
+
+<!-- ================= LOGIN / REGISTER ================= -->
+<div class="register-hero">
+    <div class="register-card" id="login-card" style="display:none;">
+        <h1>Login</h1>
+        <p>Willkommen zurück! Bitte melde dich an.</p>
+        <div class="register-form">
+            <input type="email" id="login_email" placeholder="E-Mail">
+            <input type="password" id="login_password" placeholder="Passwort">
+            <button class="btn" id="login_submit">Login</button>
+            <p id="login_message"></p>
+        </div>
+    </div>
+
+    <div class="register-card" id="register-card" style="display:none;">
+        <h1>Registrierung</h1>
+        <p>Wähle dein Paket und erstelle ein Konto.</p>
+        <div class="register-form">
+            <div class="form-row">
+                <input type="text" id="firstname" placeholder="Vorname">
+                <input type="text" id="lastname" placeholder="Nachname">
+            </div>
+            <div class="form-row">
+                <input type="email" id="email" placeholder="E-Mail">
+                <input type="text" id="phone" placeholder="Telefon">
+            </div>
+            <div class="form-row">
+                <input type="password" id="password" placeholder="Passwort">
+                <input type="password" id="password_repeat" placeholder="Passwort wiederholen">
+            </div>
+            <select id="package">
+                <option value="">Paket wählen</option>
+                <option value="Single">Single</option>
+                <option value="Basic">Basic</option>
+                <option value="Gold">Gold</option>
+                <option value="Diamant">Diamant</option>
+            </select>
+            <button class="btn" id="register_submit">Registrieren</button>
+            <p id="register_message"></p>
+        </div>
+    </div>
+</div>
+<script>
+// -------------------------
+// Buttons / Anzeige
+// -------------------------
+const loginLink = document.getElementById('btn-login-link');
+const registerLink = document.getElementById('btn-register-link');
+const inseratBtn = document.getElementById('btn-inserat');
+const inseratHeroBtn = document.getElementById('btn-inserat-hero');
+
+loginLink.addEventListener('click', ()=> {
+    document.getElementById('login-card').style.display = 'block';
+    document.getElementById('register-card').style.display = 'none';
+});
+registerLink.addEventListener('click', ()=> {
+    document.getElementById('register-card').style.display = 'block';
+    document.getElementById('login-card').style.display = 'none';
+});
+inseratBtn.addEventListener('click', ()=> document.getElementById('listing-card').style.display='block');
+inseratHeroBtn.addEventListener('click', ()=> document.getElementById('listing-card').style.display='block');
+
+// -------------------------
+// Registrierung
+// -------------------------
+document.getElementById('register_submit').addEventListener('click', async ()=>{
+    const firstname = document.getElementById('firstname').value.trim();
+    const lastname  = document.getElementById('lastname').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const phone     = document.getElementById('phone').value.trim();
+    const password  = document.getElementById('password').value;
+    const password_repeat = document.getElementById('password_repeat').value;
+    const packageSelect = document.getElementById('package').value;
+
+    if(password !== password_repeat){
+        document.getElementById('register_message').textContent = "Passwörter stimmen nicht überein.";
+        return;
+    }
+    if(!packageSelect){
+        document.getElementById('register_message').textContent = "Bitte ein Paket auswählen.";
+        return;
+    }
+
+    const res = await fetch('/api/register.php',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({firstname, lastname, email, phone, password, package:packageSelect})
+    });
+    const result = await res.json();
+    document.getElementById('register_message').textContent = result.message;
+});
+
+// -------------------------
+// Login
+// -------------------------
+document.getElementById('login_submit').addEventListener('click', async ()=>{
+    const email = document.getElementById('login_email').value.trim();
+    const password = document.getElementById('login_password').value;
+
+    const res = await fetch('/api/login.php',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email,password})
+    });
+    const result = await res.json();
+    document.getElementById('login_message').textContent = result.message;
+
+    if(result.success){
+        inseratBtn.style.display = 'inline-block';
+        inseratHeroBtn.style.display = 'inline-block';
+        document.getElementById('login-card').style.display = 'none';
+    }
+});
+
+// -------------------------
+// Inserat erstellen
+// -------------------------
+document.getElementById('listing_submit').addEventListener('click', async ()=>{
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const imagesInput = document.getElementById('images');
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    for(let i=0;i<imagesInput.files.length;i++){
+        formData.append('images[]', imagesInput.files[i]);
+    }
+
+    const res = await fetch('/api/create_listing.php',{method:'POST', body:formData});
+    const result = await res.json();
+    document.getElementById('listing_message').textContent = result.message;
+});
+</script>
+
+<footer>
+    <p>&copy; 2026 RendixNexus</p>
+</footer>
+
+</body>
+</html>

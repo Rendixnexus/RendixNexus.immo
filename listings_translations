@@ -1,0 +1,8 @@
+CREATE TABLE listings_translations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  listing_id INT NOT NULL,
+  language CHAR(5) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  FOREIGN KEY (listing_id) REFERENCES listings(id)
+);

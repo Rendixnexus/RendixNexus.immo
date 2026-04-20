@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Registrierung – RendixNexus</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<header>
+    <div class="logo-container">
+        <img src="rendix.jpg" alt="Logo" class="logo">
+        <span class="logo-name">RendixNexus</span>
+    </div>
+
+    <nav>
+        <a href="index.html">Startseite</a>
+        <a href="login.html">Login</a>
+        <a href="packages.html">Pakete</a>
+    </nav>
+</header>
+
+<section class="register-hero">
+
+    <div class="register-card">
+
+        <h1>Konto erstellen</h1>
+        <p>Starte jetzt und verkaufe deine Immobilie.</p>
+
+        <form class="register-form" id="register-form">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Vorname</label>
+                    <input type="text" id="firstname" placeholder="Vorname" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Nachname</label>
+                    <input type="text" id="lastname" placeholder="Nachname" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>E-Mail</label>
+                <input type="email" id="email" placeholder="E-Mail" required>
+            </div>
+
+            <div class="form-group">
+                <label>Telefon</label>
+                <input type="text" id="phone" placeholder="Telefon" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Passwort</label>
+                    <input type="password" id="password" placeholder="Passwort" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Passwort wiederholen</label>
+                    <input type="password" id="password_repeat" placeholder="Passwort wiederholen" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Paket auswählen</label>
+                <select id="package" required>
+                    <option value="">Wähle ein Paket</option>
+                    <option value="basic">Basic</option>
+                    <option value="premium">Premium</option>
+                    <option value="gold">Gold</option>
+                    <option value="diamant">Diamant</option>
+                     <option value="diamant">Auslandsimmobilie</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn">Jetzt registrieren</button>
+        </form>
+
+        <p id="register_message" style="text-align:center; margin-top:15px; color:red;"></p>
+
+    </div>
+
+</section>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("register-form");
+    const messageEl = document.getElementById("register_message");
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        messageEl.textContent = "";
+        messageEl.style.color = "red";
+
+        const password = document.getElementById("password").value;
+        const passwordRepeat = document.getElementById("password_repeat").value;
+        if(password !== passwordRepeat){
+            messageEl.textContent = "Passwörter stimmen nicht überein!";
+            return;
+        }
+
+        const data = {
+            firstname: document.getElementById("firstname").value.trim(),
+            lastname: document.getElementById("lastname").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            phone: document.getElementById("phone").value.trim(),
+            password: password,
+            package: document.getElementById("package").value
+        };
+
+        try{
+            const res = await fetch("/RealEstatePlatform2/api/register.php", {
+                method:"POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+
+            if(result.success){
+                messageEl.style.color = "green";
+                messageEl.textContent = result.message;
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 1500);
+            } else {
+                messageEl.textContent = result.message;
+            }
+
+        } catch(err){
+            console.error(err);
+            messageEl.textContent = "Server nicht erreichbar";
+        }
+    });
+});
+</script>
+
+<footer>
+    <p>&copy; 2026 RendixNexus</p>
+</footer>
+
+</body>
+</html>

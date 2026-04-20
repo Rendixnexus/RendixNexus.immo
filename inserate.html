@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inserat erstellen</title>
+<style>
+body { background:#111; color:#fff; font-family:Arial; text-align:center; }
+.step { display:none; margin:30px auto; max-width:700px; padding:20px; background:#1e1e1e; border-radius:10px; }
+.btn { background:#ff0055; padding:10px 20px; border:none; color:#fff; cursor:pointer; margin:10px 5px; border-radius:5px; }
+input, select, textarea { width:80%; padding:10px; margin:5px; border-radius:5px; border:none; }
+textarea { resize: none; }
+.card { background:#222; padding:10px; margin:10px; border-radius:10px; text-align:left; }
+h1, h2 { margin-bottom:15px; }
+</style>
+</head>
+<body>
+
+<h1>Inserat erstellen</h1>
+
+<div id="steps"></div>
+
+<h2>Inserate</h2>
+<div id="output"></div>
+
+<script>
+// ================= DATA =================
+const stepsData = [
+["F1: Immobilientyp", `<select id="f1"><option value="">Bitte wählen</option><option>Haus</option><option>Wohnung</option><option>Grundstück</option></select>`],
+["F2: Vermieten oder Verkaufen", `<select id="f2"><option value="">Bitte wählen</option><option>Vermieten</option><option>Verkaufen</option></select>`],
+["F3: Land", `<select id="f3" onchange="handleF3()"><option value="">Bitte wählen</option><option>Deutschland</option><option>Österreich</option><option>Schweiz</option><option>Ausland</option></select>`],
+["F4: Kontinent", `<select id="f4"><option value="">Bitte wählen</option><option>Europa</option><option>Asien</option><option>Afrika</option><option>Amerika</option><option>Australien</option></select>`],
+["F5: Land/Region", `<input id="f5" placeholder="z.B. Spanien / USA">`],
+["F6: Adresse", `<input id="plz" placeholder="PLZ"><br><input id="city" placeholder="Stadt"><br><input id="street" placeholder="Straße + Hausnummer">`],
+["F7: Google Maps Link", `<textarea id="maps" placeholder="Google Maps Link hier einfügen" rows="2" style="width:80%; padding:10px; margin:5px;"></textarea>`],
+["F8: Bauweise", `<input id="f8" placeholder="z.B. Ziegel, Holz">`],
+["F9: Hausart", `<input id="f9" placeholder="z.B. Hochhaus, Reihenhaus">`],
+["F10: Zustand", `<select id="f10"><option value="">Bitte wählen</option><option>Neubau</option><option>Gut</option><option>Renovierungsbedürftig</option><option>Abriss</option></select>`],
+["F11: Dämmung", `<input id="f11" placeholder="z.B. Ziegel, Kalk, Porenbeton">`],
+["F12: Baujahr", `<input type="number" id="year">`],
+["F13: Energieausweis", `<select id="energy"><option value="">Bitte wählen</option><option>Ja</option><option>Nein</option></select><input type="file" id="energyFile">`],
+["F14: Heizung", `<input id="heat" placeholder="z.B. Gas, Öl, Wärmepumpe">`],
+["F15: Parken", `<select id="parking"><option value="">Bitte wählen</option><option>Garage</option><option>Carport</option><option>Straße</option><option>Keine</option></select>`],
+["F16: Parkplätze Anzahl", `<input type="number" id="parkCount" min="0" max="20">`],
+["F17: Grundstücksgröße (m²)", `<input type="number" id="grund">`],
+["F18: Wohnfläche (m²)", `<input type="number" id="size">`],
+["F19: Zimmer gesamt", `<input type="number" id="rooms">`],
+["F20: Schlafzimmer", `<input type="number" id="bed">`],
+["F21: Badezimmer", `<input type="number" id="bath">`],
+["F22: Küche", `<input type="number" id="kitchen">`],
+["F23: Keller", `<select id="cellar"><option value="">Bitte wählen</option><option>Ja</option><option>Nein</option></select>`],
+["F24: Balkon/Terrasse", `<select id="balcony"><option value="">Bitte wählen</option><option>Ja</option><option>Nein</option></select>`],
+["F25: Garten", `<select id="garden"><option value="">Bitte wählen</option><option>Ja</option><option>Nein</option></select>`],
+["F26: Haustiere erlaubt", `<select id="pets"><option value="">Bitte wählen</option><option>Ja</option><option>Nein</option></select>`],
+["F27: Lift", `<select id="lift"><option value="">Bitte wählen</option><option>Ja</option><option>Nein</option></select>`],
+["F28: Rollstuhlgerecht", `<select id="wheel"><option value="">Bitte wählen</option><option>Ja</option><option>Nein</option></select>`],
+["F29: Möbliert", `<select id="furnished"><option value="">Bitte wählen</option><option>Ja</option><option>Nein</option></select>`],
+["F30: Bilder Upload", `<input type="file" multiple id="images">`],
+["F31: Preis (€)", `<input type="number" id="price">`],
+["F32: Provision", `<select id="prov"><option value="">Bitte wählen</option><option>Nein</option><option>Ja</option></select><br><input id="provValue" placeholder="% oder Betrag">`],
+["F33: Anbieter", `<select id="anbieter"><option value="">Bitte wählen</option><option>Privat</option><option>Makler</option></select>`],
+["F34: Beschreibung", `<textarea id="desc" rows="4" placeholder="Beschreibung..."></textarea>`]
+];
+
+// ================= BUILD STEPS =================
+function buildSteps(){
+    let container = document.getElementById("steps");
+    stepsData.forEach((s,i)=>{
+        let step = document.createElement("div");
+        step.className = "step";
+        step.id = "step"+(i+1);
+        let backBtn = i>0 ? `<button class="btn" onclick="show(${i})">Zurück</button>` : '';
+        let nextBtn = `<button class="btn" onclick="nextStep(${i+1})">${i+1===stepsData.length?'Veröffentlichen':'Weiter'}</button>`;
+        step.innerHTML = `<h2>${s[0]}</h2>${s[1]}<br>${backBtn}${nextBtn}`;
+        container.appendChild(step);
+    });
+    show(1);
+}
+
+// ================= NAV =================
+let current = 1;
+function show(n){
+    document.querySelectorAll('.step').forEach(s=>s.style.display='none');
+    let step = document.getElementById('step'+n);
+    if(step){
+        step.style.display='block';
+        current=n;
+        if(n===7){
+            let mapsField = document.getElementById('maps');
+            mapsField.focus();
+            mapsField.select();
+        }
+    }
+}
+
+// ================= VALIDATION + NEXT =================
+function nextStep(stepNumber){
+    let stepEl = document.getElementById('step'+stepNumber);
+    let inputs = stepEl.querySelectorAll('input, select, textarea');
+    for(let input of inputs){
+        if((input.type!=="file" && input.value==="") || (input.type==="file" && input.files.length===0)){
+            alert("Bitte alle Pflichtfelder ausfüllen!");
+            input.focus();
+            return;
+        }
+    }
+    if(stepNumber === stepsData.length){
+        publish();
+    } else {
+        show(stepNumber+1);
+    }
+}
+
+// ================= HANDLE F3 =================
+function handleF3(){
+    let val = document.getElementById('f3').value;
+    if(val==="Ausland"){ show(4); }
+    else{ show(6); }
+}
+
+// ================= PUBLISH =================
+function publish(){
+    let data = {};
+    stepsData.forEach((s,i)=>{
+        let el = document.getElementById('f'+(i+1)) || document.getElementById('desc') || document.getElementById('price') || document.getElementById('anbieter') || document.getElementById('plz') || document.getElementById('city') || document.getElementById('street') || document.getElementById('maps') || document.getElementById('images');
+        if(el){
+            if(el.type==="file"){
+                data[el.id] = Array.from(el.files).map(f=>f.name).join(", ");
+            } else {
+                data[el.id] = el.value;
+            }
+        }
+    });
+    let card = document.createElement('div');
+    card.className = "card";
+    card.innerHTML = `<h3>${data.f1} - ${data.f2}</h3>
+                      <p>${data.street}, ${data.city}, ${data.plz}</p>
+                      <p>Preis: ${data.price} €</p>
+                      <p>Anbieter: ${data.anbieter}</p>
+                      <p>${data.maps}</p>
+                      <p>${data.desc}</p>`;
+    document.getElementById('output').appendChild(card);
+    alert("Inserat erfolgreich veröffentlicht!");
+    show(1);
+}
+
+buildSteps();
+</script>
+
+<button onclick="addFavorite('IMMOBILIEN_ID')">⭐ Favorit</button>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Login – RendixNexus</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<header>
+    <div class="logo-container">
+        <img src="rendix.jpg" alt="Logo" class="logo">
+        <span class="logo-name">RendixNexus</span>
+    </div>
+
+    <nav>
+        <a href="index.html">Startseite</a>
+        <a href="register.html">Registrierung</a>
+        <a href="packages.html">Pakete</a>
+    </nav>
+</header>
+
+<section class="register-hero">
+    <div class="register-card">
+
+        <h1>Einloggen</h1>
+        <p>Willkommen zurück! Bitte melde dich an.</p>
+
+        <form class="register-form" id="login-form">
+            <div class="form-group">
+                <label>E-Mail</label>
+                <input type="email" id="login_email" placeholder="E-Mail" required>
+            </div>
+
+            <div class="form-group">
+                <label>Passwort</label>
+                <input type="password" id="login_password" placeholder="Passwort" required>
+            </div>
+
+            <button type="submit" class="btn">Login</button>
+        </form>
+
+        <p id="login_message" style="text-align:center; margin-top:15px;"></p>
+
+        <p style="text-align:center; margin-top:15px;">
+            Noch kein Konto? <a href="register.html" style="color:#ff0055;">Jetzt registrieren</a>
+        </p>
+
+    </div>
+</section>
+
+
+<script>
+const BASE_URL = "https://rendixnexus.immo/"; // Passe auf deinen Serverpfad an
+
+async function loginUser(event){
+    event.preventDefault();
+    const email = document.getElementById("login_email").value.trim();
+    const password = document.getElementById("login_password").value;
+    const messageEl = document.getElementById("login_message");
+
+    if(!email || !password){
+        messageEl.textContent = "Bitte alle Felder ausfüllen.";
+        messageEl.style.color = "red";
+        return;
+    }
+
+    try{
+        const res = await fetch(BASE_URL + "api/login.php", {
+            method: "POST",
+            headers: {
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({email, password})
+        });
+
+        const text = await res.text();
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch(e){
+            console.error("Server Antwort:", text);
+            messageEl.textContent = "Serverfehler";
+            return;
+        }
+
+        if(result.success){
+            sessionStorage.setItem("loggedIn", "true");
+            messageEl.style.color = "green";
+            messageEl.textContent = result.message;
+
+            setTimeout(() => {
+                window.location.href = "dashboard.html";
+            }, 1000);
+
+        } else {
+            messageEl.style.color = "red";
+            messageEl.textContent = result.message;
+        }
+
+    } catch(err){
+        console.error(err);
+        messageEl.style.color = "red";
+        messageEl.textContent = "Server nicht erreichbar.";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("login-form").addEventListener("submit", loginUser);
+});
+</script>
+
+
+<footer>
+    <p>&copy; 2026 RendixNexus</p>
+</footer>
+
+</body>
+</html>

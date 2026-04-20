@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard – ImmoxNexus</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <img src="rendix.jpg" alt="Logo" class="logo">
+        <span class="logo-name">ImmoxNexus</span>
+    </div>
+    <nav>
+        <a href="index.html">Startseite</a>
+        <a href="logout.php">Logout</a>
+    </nav>
+</header>
+
+<section class="dashboard-hero">
+    <h1>Meine Inserate</h1>
+    <button onclick="window.location.href='add_listing.html'" class="btn">Neues Inserat erstellen</button>
+
+    <div id="listing-container" class="listing-container">
+        <!-- Inserate werden hier per JS geladen -->
+    </div>
+</section>
+
+<script>
+async function loadListings(){
+    try{
+        const res = await fetch("/RealEstatePlatform/api/listings.php");
+        const result = await res.json();
+
+        const container = document.getElementById("listing-container");
+        container.innerHTML = "";
+
+        if(!result.success){
+            container.innerHTML = "<p>"+result.message+"</p>";
+            return;
+        }
+
+        if(result.listings.length === 0){
+            container.innerHTML = "<p>Keine Inserate vorhanden.</p>";
+            return;
+        }
+
+        result.listings.forEach(listing => {
+            const div = document.createElement("div");
+            div.className = "listing-card";
+
+            div.innerHTML = `
+                <h3>${listing.title}</h3>
+                <p>${listing.description || ""}</p>
+                <p>Preis: € ${listing.price}</p>
+                <p>Erstellt von: ${listing.firstname || ""} ${listing.lastname || ""}</p>
+                <p>Erstellt am: ${listing.created_at}</p>
+            `;
+            container.appendChild(div);
+        });
+
+    }catch(err){
+        console.error(err);
+        document.getElementById("listing-container").innerHTML = "<p>Fehler beim Laden der Inserate.</p>";
+    }
+}
+
+// Seite laden
+loadListings();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Pakete - Immorendix</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+
+<div class="logo-container">
+<img src="rendix.jpg" alt="Immorendix Logo" class="logo">
+<span class="logo-name">Immorendix</span>
+</div>
+
+<nav>
+<a href="index.html">Startseite</a>
+<a href="login.html">Login</a>
+</nav>
+
+</header>
+
+
+<section class="intro-text">
+
+<h1>Registrierung & Pakete</h1>
+
+<p>
+Um Immobilien zu inserieren, musst du dich registrieren und ein Paket wählen.
+Hier siehst du eine Übersicht aller Pakete mit allen wichtigen Eckdaten.
+Später wählst du dein Paket im Registrierungsprozess aus und dein Dashboard wird freigeschaltet.
+</p>
+
+</section>
+
+
+<section class="packages-container">
+
+<!-- Single -->
+
+<div class="package-card" data-package="Single">
+
+<h3>Single</h3>
+
+<p class="package-price">55 € pro Inserat</p>
+
+<div class="package-details">
+
+<ul>
+<li>Dauer: 30 Tage</li>
+<li>Maximal 10 Inserate</li>
+<li>Bis zu 20 Bilder pro Inserat</li>
+<li>Bezahlung: Überweisung (IBAN / BIC)</li>
+<li>Verlängerung: 40 € pro Inserat</li>
+<li>Verlängerungs-Zeitraum: 35 Tage</li>
+</ul>
+
+<button class="btn select-package">Jetzt registrieren</button>
+
+</div>
+
+</div>
+
+
+<!-- Basic -->
+
+<div class="package-card" data-package="Basic">
+
+<h3>Basic</h3>
+
+<p class="package-price">30 € pro Inserat</p>
+
+<div class="package-details">
+
+<ul>
+<li>Dauer: 30 Tage pro Inserat</li>
+<li>Mindestinserate 90</li>
+<li>Maximal 200 Inserate pro Monat</li>
+<li>Bis zu 25 Bilder pro Inserat</li>
+<li>Bezahlung: Überweisung (IBAN / BIC)</li>
+<li>Verlängerung: 20 € pro Inserat</li>
+<li>Verlängerungs-Zeitraum: 30 Tage</li>
+</ul>
+
+<button class="btn select-package">Jetzt registrieren</button>
+
+</div>
+
+</div>
+
+
+<!-- Gold -->
+
+<div class="package-card" data-package="Gold">
+
+<h3>Gold</h3>
+
+<p class="package-price">20 € pro Inserat </p>
+
+<div class="package-details">
+
+<ul>
+<li>Dauer: 30 Tage pro Inserat</li>
+<li>Maximal 2000 Inserate pro Monat</li>
+<li>Bis zu 30 Bilder pro Inserat</li>
+<li>Pro Inserat: 20 € Verlängerung</li>
+<li>Videos möglich: 2 Videos je max. 5 Minuten</li>
+<li>Bezahlung: Überweisung (IBAN / BIC)</li>
+<li>Verlängerungs-Zeitraum: 30/60/90 Tage</li>
+</ul>
+
+<button class="btn select-package">Jetzt registrieren</button>
+
+</div>
+
+</div>
+
+
+<!-- Diamant -->
+
+<div class="package-card" data-package="Diamant">
+
+<h3>Diamant</h3>
+
+<p class="package-price">10 € pro Inserat</p>
+
+<div class="package-details">
+
+<ul>
+<li>Dauer: 350 Tage</li>
+<li>Maximal 100.000 Inserate</li>
+<li>Mindestinserateanzahl 300 Inserate</li>
+<li>Bis zu 50 Bilder pro Inserat</li>
+<li>keine Verlängerung</li>
+<li>Videos möglich: 50 Videos je max. 5 Minuten</li>
+<li>Priorität: Anzeigen erscheinen vor Gold, Basic, Single</li>
+<li>Bezahlung: Überweisung (IBAN / BIC)</li>
+</ul>
+
+<button class="btn select-package">Jetzt registrieren</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<script>
+
+document.querySelectorAll(".select-package").forEach(button => {
+
+button.addEventListener("click", function(){
+
+const card = this.closest(".package-card");
+
+const packageName = card.dataset.package;
+
+sessionStorage.setItem("selectedPackage", packageName);
+
+window.location.href = "register.html";
+
+});
+
+});
+
+</script>
+
+</body>
+</html>
